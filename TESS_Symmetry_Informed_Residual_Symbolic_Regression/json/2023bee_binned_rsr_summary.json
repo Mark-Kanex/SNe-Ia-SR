@@ -1,0 +1,15 @@
+{
+  "file": "2023bee_binned",
+  "t_exp": 59977.13784255236,
+  "n_components": 5,
+  "equations": [
+    "(x0 * ((x0 * -2.4284525) + 80.31478)) + -66.72419",
+    "exp(4.723928 - x0)"
+  ],
+  "csv": "TESS_Residual_Symbolic_Regression/csv/2023bee_binned_rsr_components.csv",
+  "r2": 0.996060453128266,
+  "r2_by_order": [
+    0.9581755165495691,
+    0.996060453128266
+  ]
+}

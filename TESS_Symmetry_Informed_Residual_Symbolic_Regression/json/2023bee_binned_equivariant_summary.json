@@ -1,0 +1,26 @@
+{
+  "file": "2023bee_binned",
+  "t_exp": 59977.14830909887,
+  "n_components": 2,
+  "equations": [
+    "(x2 * (12.597064 + ((x0 * 50.81896) - (x1 * 47.06002)))) + 3.421815",
+    "(sin(x1 - (x0 - -494.91064)) * x2) * 16.19563"
+  ],
+  "csv": "TESS_Residual_Symbolic_Regression/csv/2023bee_binned_equivariant.csv",
+  "components_csv": "TESS_Residual_Symbolic_Regression/csv/2023bee_binned_equivariant_components.csv",
+  "r2": 0.9967728377582387,
+  "r2_by_order": [
+    0.9937325491269624,
+    0.9967728377582387
+  ],
+  "duplicates": 10,
+  "t0_range": [
+    -2.5,
+    2.5
+  ],
+  "t0_step": 0.25,
+  "a_range": [
+    0.0,
+    5.0
+  ]
+}

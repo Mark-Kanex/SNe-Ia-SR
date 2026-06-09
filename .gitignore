@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+outputs/
+.DS_Store
+.venv/
+.claude/
+TESS_Validation/lightcurves/
+TESS_Validation/.bootstrap_runs/
+TESS_Visualization/all_tess_lc.txt

@@ -1,0 +1,15 @@
+{
+  "file": "2018fub_binned",
+  "t_exp": 58359.76490096287,
+  "n_components": 5,
+  "equations": [
+    "(x0 * 3.1370785) + -38.24324",
+    "2.1261275 * sin((2.5161872 - x0) * 0.64929926)"
+  ],
+  "csv": "TESS_Residual_Symbolic_Regression/csv/2018fub_binned_rsr_components.csv",
+  "r2": 0.9938360237529542,
+  "r2_by_order": [
+    0.9800639325322374,
+    0.9938360237529542
+  ]
+}

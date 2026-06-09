@@ -1,0 +1,26 @@
+{
+  "file": "2020tld_binned",
+  "t_exp": 59104.1256786985,
+  "n_components": 2,
+  "equations": [
+    "(((x2 * 8.837154) + x0) - (x1 + 6.289526)) * (x0 - x1)",
+    "(((exp(x0) * -0.0016676384) + 2.5605428) + x1) * (2.4517572 - x2)"
+  ],
+  "csv": "TESS_Residual_Symbolic_Regression/csv/2020tld_binned_equivariant.csv",
+  "components_csv": "TESS_Residual_Symbolic_Regression/csv/2020tld_binned_equivariant_components.csv",
+  "r2": 0.996115711512217,
+  "r2_by_order": [
+    0.9944865862686707,
+    0.996115711512217
+  ],
+  "duplicates": 10,
+  "t0_range": [
+    -2.5,
+    2.5
+  ],
+  "t0_step": 0.25,
+  "a_range": [
+    0.0,
+    5.0
+  ]
+}

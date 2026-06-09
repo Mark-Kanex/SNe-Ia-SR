@@ -1,0 +1,15 @@
+{
+  "file": "2018oh_binned",
+  "t_exp": 58145.22128286756,
+  "n_components": 5,
+  "equations": [
+    "((x0 * (x0 - -2.2323604)) * 121.36311) - -545.52496",
+    "(183.16121 * sin(x0 * 1.0773194)) + -51.232166"
+  ],
+  "csv": "TESS_Residual_Symbolic_Regression/csv/2018oh_binned_rsr_components.csv",
+  "r2": 0.9995636560033355,
+  "r2_by_order": [
+    0.9980228827972695,
+    0.9995636560033355
+  ]
+}

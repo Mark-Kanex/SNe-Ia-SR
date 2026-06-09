@@ -1,0 +1,199 @@
+{
+  "args": {
+    "data_dir": "TESS_Data",
+    "out_dir": "TESS_Symmetry_Informed_Residual_Symbolic_Regression",
+    "components": 10,
+    "niterations": 100,
+    "maxsize": 100,
+    "maxdepth": 15,
+    "ncycles_per_iteration": 100,
+    "equiv_duplicates": 25,
+    "equiv_t0_min": -2.0,
+    "equiv_t0_max": 2.0,
+    "equiv_t0_step": 0.25,
+    "equiv_a_min": 0.0,
+    "equiv_a_max": 5.0,
+    "equiv_seed": null
+  },
+  "summaries": [
+    {
+      "file": "2020tld_binned",
+      "t_exp": 59104.6256786985,
+      "n_components": 2,
+      "equations": [
+        "A * ((t * (7.1004944 - (t * -0.33884227))) - -2.6790173)",
+        "A * ((sin(((-1.4477792 - t) * (t * 0.37815323)) - 3.0726159) * -2.1047285) + sin(t))"
+      ],
+      "ebic_by_order": [
+        2869.6560082784845,
+        2567.094987550832
+      ],
+      "ebic_by_order_norm": [
+        3.605095487787041,
+        3.2249937029533062
+      ],
+      "ebic_last_rejected": 2557.0032865014423,
+      "ebic_last_rejected_norm": 3.212315686559601,
+      "ebic_last_rejected_index": 3,
+      "csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2020tld_binned_symmetry_informed.csv",
+      "components_csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2020tld_binned_symmetry_components.csv",
+      "r2": 0.9967570637823226,
+      "r2_by_order": [
+        0.9940013063551996,
+        0.9967570637823226
+      ],
+      "duplicates": 25,
+      "t0_range": [
+        -0.8250000000000001,
+        0.8250000000000001
+      ],
+      "t0_step": 0.25,
+      "a_range": [
+        0.0,
+        5.0
+      ],
+      "summary_json": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/json/2020tld_binned_symmetry_summary.json",
+      "plot": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/plots/2020tld_binned_symmetry_duplicates.png"
+    },
+    {
+      "file": "2018fub_binned",
+      "t_exp": 58359.76490096287,
+      "n_components": 1,
+      "equations": [
+        "A * ((2.7122357 * (t + sin(-0.4429543 * t))) - 34.810555)"
+      ],
+      "ebic_by_order": [
+        2320.1862531315332
+      ],
+      "ebic_by_order_norm": [
+        1.9190953293064792
+      ],
+      "ebic_last_rejected": 2081.089090747464,
+      "ebic_last_rejected_norm": 1.7213309270036923,
+      "ebic_last_rejected_index": 2,
+      "csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2018fub_binned_symmetry_informed.csv",
+      "components_csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2018fub_binned_symmetry_components.csv",
+      "r2": 0.995988867445757,
+      "r2_by_order": [
+        0.995988867445757
+      ],
+      "duplicates": 25,
+      "t0_range": [
+        -1.4000000000000001,
+        1.4000000000000001
+      ],
+      "t0_step": 0.25,
+      "a_range": [
+        0.0,
+        5.0
+      ],
+      "summary_json": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/json/2018fub_binned_symmetry_summary.json",
+      "plot": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/plots/2018fub_binned_symmetry_duplicates.png"
+    },
+    {
+      "file": "2023bee_binned",
+      "t_exp": 59976.39408188038,
+      "n_components": 1,
+      "equations": [
+        "((((t * -0.66676277) + 11.101184) * (t * t)) + 28.61402) * A"
+      ],
+      "ebic_by_order": [
+        5217.788452375761
+      ],
+      "ebic_by_order_norm": [
+        5.665351196933508
+      ],
+      "ebic_last_rejected": 5204.17792218019,
+      "ebic_last_rejected_norm": 5.6505732054073725,
+      "ebic_last_rejected_index": 2,
+      "csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2023bee_binned_symmetry_informed.csv",
+      "components_csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2023bee_binned_symmetry_components.csv",
+      "r2": 0.9992053020144654,
+      "r2_by_order": [
+        0.9992053020144654
+      ],
+      "duplicates": 25,
+      "t0_range": [
+        -0.9740433739876608,
+        0.9740433739876608
+      ],
+      "t0_step": 0.25,
+      "a_range": [
+        0.0,
+        5.0
+      ],
+      "summary_json": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/json/2023bee_binned_symmetry_summary.json",
+      "plot": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/plots/2023bee_binned_symmetry_duplicates.png"
+    },
+    {
+      "file": "2023inb_binned",
+      "t_exp": 60072.61963039194,
+      "n_components": 1,
+      "equations": [
+        "(A * (((sin((t + -1.2848681) * -0.58822227) + 6.102552) * (sin(t * -0.74171257) + t)) + 3.8896055)) + -1.5908663"
+      ],
+      "ebic_by_order": [
+        3232.4986783369336
+      ],
+      "ebic_by_order_norm": [
+        2.4051329451911707
+      ],
+      "ebic_last_rejected": 3091.6448187452092,
+      "ebic_last_rejected_norm": 2.3003309663282807,
+      "ebic_last_rejected_index": 2,
+      "csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2023inb_binned_symmetry_informed.csv",
+      "components_csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2023inb_binned_symmetry_components.csv",
+      "r2": 0.9989895583871917,
+      "r2_by_order": [
+        0.9989895583871917
+      ],
+      "duplicates": 25,
+      "t0_range": [
+        -1.4243380437350426,
+        1.4243380437350426
+      ],
+      "t0_step": 0.25,
+      "a_range": [
+        0.0,
+        5.0
+      ],
+      "summary_json": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/json/2023inb_binned_symmetry_summary.json",
+      "plot": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/plots/2023inb_binned_symmetry_duplicates.png"
+    },
+    {
+      "file": "2018oh_binned",
+      "t_exp": 58145.1939727729,
+      "n_components": 1,
+      "equations": [
+        "(((((t * 117.646355) - -307.06738) * t) + 413.25815) + (sin(t) * 172.71513)) * A"
+      ],
+      "ebic_by_order": [
+        9022.506002249918
+      ],
+      "ebic_by_order_norm": [
+        12.03000800299989
+      ],
+      "ebic_last_rejected": 8929.29176389954,
+      "ebic_last_rejected_norm": 11.905722351866054,
+      "ebic_last_rejected_index": 2,
+      "csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2018oh_binned_symmetry_informed.csv",
+      "components_csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2018oh_binned_symmetry_components.csv",
+      "r2": 0.9983790618157515,
+      "r2_by_order": [
+        0.9983790618157515
+      ],
+      "duplicates": 25,
+      "t0_range": [
+        -0.8279570401362435,
+        0.8279570401362435
+      ],
+      "t0_step": 0.25,
+      "a_range": [
+        0.0,
+        5.0
+      ],
+      "summary_json": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/json/2018oh_binned_symmetry_summary.json",
+      "plot": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/plots/2018oh_binned_symmetry_duplicates.png"
+    }
+  ]
+}

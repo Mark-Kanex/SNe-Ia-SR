@@ -1,0 +1,15 @@
+{
+  "file": "2020tld_binned",
+  "t_exp": 59104.59146960006,
+  "n_components": 5,
+  "equations": [
+    "x0 * (sin(x0 + -0.9306848) + 9.990477)",
+    "(-0.52611977 - sin(x0 - -4.8161836)) * x0"
+  ],
+  "csv": "TESS_Residual_Symbolic_Regression/csv/2020tld_binned_rsr_components.csv",
+  "r2": 0.9929825021062476,
+  "r2_by_order": [
+    0.9759165016786231,
+    0.9929825021062476
+  ]
+}

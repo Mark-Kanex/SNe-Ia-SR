@@ -1,0 +1,33 @@
+{
+  "file": "2023bee_binned",
+  "t_exp": 59976.39408188038,
+  "n_components": 1,
+  "equations": [
+    "((((t * -0.66676277) + 11.101184) * (t * t)) + 28.61402) * A"
+  ],
+  "ebic_by_order": [
+    5217.788452375761
+  ],
+  "ebic_by_order_norm": [
+    5.665351196933508
+  ],
+  "ebic_last_rejected": 5204.17792218019,
+  "ebic_last_rejected_norm": 5.6505732054073725,
+  "ebic_last_rejected_index": 2,
+  "csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2023bee_binned_symmetry_informed.csv",
+  "components_csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2023bee_binned_symmetry_components.csv",
+  "r2": 0.9992053020144654,
+  "r2_by_order": [
+    0.9992053020144654
+  ],
+  "duplicates": 25,
+  "t0_range": [
+    -0.9740433739876608,
+    0.9740433739876608
+  ],
+  "t0_step": 0.25,
+  "a_range": [
+    0.0,
+    5.0
+  ]
+}

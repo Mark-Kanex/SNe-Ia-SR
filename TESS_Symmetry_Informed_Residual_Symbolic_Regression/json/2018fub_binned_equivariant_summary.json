@@ -1,0 +1,26 @@
+{
+  "file": "2018fub_binned",
+  "t_exp": 58359.83626312244,
+  "n_components": 2,
+  "equations": [
+    "((-15.372395 - x1) + (x0 * 1.2632852)) * ((x2 * 2.4171147) + -0.04807271)",
+    "x2 * (sin((x0 - 2.0086577) * -0.61964375) * 2.116439)"
+  ],
+  "csv": "TESS_Residual_Symbolic_Regression/csv/2018fub_binned_equivariant.csv",
+  "components_csv": "TESS_Residual_Symbolic_Regression/csv/2018fub_binned_equivariant_components.csv",
+  "r2": 0.9938263902172307,
+  "r2_by_order": [
+    0.985180592770873,
+    0.9938263902172307
+  ],
+  "duplicates": 10,
+  "t0_range": [
+    -2.5,
+    2.5
+  ],
+  "t0_step": 0.25,
+  "a_range": [
+    0.0,
+    5.0
+  ]
+}

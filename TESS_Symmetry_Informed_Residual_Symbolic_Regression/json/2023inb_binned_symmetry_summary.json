@@ -1,0 +1,33 @@
+{
+  "file": "2023inb_binned",
+  "t_exp": 60072.61963039194,
+  "n_components": 1,
+  "equations": [
+    "(A * (((sin((t + -1.2848681) * -0.58822227) + 6.102552) * (sin(t * -0.74171257) + t)) + 3.8896055)) + -1.5908663"
+  ],
+  "ebic_by_order": [
+    3232.4986783369336
+  ],
+  "ebic_by_order_norm": [
+    2.4051329451911707
+  ],
+  "ebic_last_rejected": 3091.6448187452092,
+  "ebic_last_rejected_norm": 2.3003309663282807,
+  "ebic_last_rejected_index": 2,
+  "csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2023inb_binned_symmetry_informed.csv",
+  "components_csv": "TESS_Symmetry_Informed_Residual_Symbolic_Regression/csv/2023inb_binned_symmetry_components.csv",
+  "r2": 0.9989895583871917,
+  "r2_by_order": [
+    0.9989895583871917
+  ],
+  "duplicates": 25,
+  "t0_range": [
+    -1.4243380437350426,
+    1.4243380437350426
+  ],
+  "t0_step": 0.25,
+  "a_range": [
+    0.0,
+    5.0
+  ]
+}
