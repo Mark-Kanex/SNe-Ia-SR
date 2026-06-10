@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+os.environ.setdefault("JULIA_NUM_THREADS", "4")
 from pysr import PySRRegressor
 from sympy import sympify, Symbol, lambdify, preorder_traversal, sin, exp
 DEF_MAX_COMPONENTS = 2
@@ -20,6 +21,7 @@ DEF_OPERATOR_COMPLEXITIES = {
     "-": 1,
     "*": 2,
     "/": 3,
+    "^": 4,
     "sin": 5,
     "exp": 5,
 }
@@ -188,14 +190,12 @@ def generate_symmetry_informed_dataset(time_since_t_exp: np.ndarray, flux_values
     out_dup = []
     out_window_min = []
     out_window_max = []
+    t0_sigma = (t0_max - t0_min) / 4.0 if t0_max > t0_min else 0.0
+    scale_sigma = 0.05
     for dup_idx in range(int(duplicates)):
-        t0 = float(rng.uniform(t0_min, t0_max))
-        if t0 < t0_min:
-            t0 = t0_min
-        elif t0 > t0_max:
-            t0 = t0_max
+        t0 = float(np.clip(rng.normal(0.0, t0_sigma), t0_min, t0_max)) if t0_sigma > 0 else 0.0
         a = float(rng.uniform(a_min, a_max))
-        window_scale = float(rng.uniform(DEF_EQUIV_WINDOW_SCALE_MIN, DEF_EQUIV_WINDOW_SCALE_MAX))
+        window_scale = float(np.clip(rng.normal(1.0, scale_sigma), DEF_EQUIV_WINDOW_SCALE_MIN, DEF_EQUIV_WINDOW_SCALE_MAX))
         target_min = plot_rel_min
         target_max = plot_rel_max * window_scale
         source_mask = (
@@ -254,20 +254,23 @@ def fit_symbolic_regression(feature_matrix: np.ndarray, target: np.ndarray,
         niterations=niterations,
         populations=24,
         ncycles_per_iteration=ncycles_per_iteration,
-        binary_operators=["+", "-", "*", "/"],
+        binary_operators=["+", "-", "*", "/", "^"],
         unary_operators=["sin", "exp"],
         nested_constraints={"sin": {"sin": 0, "exp": 0}, "exp": {"sin": 0, "exp": 0}},
+        constraints={"^": (-1, 1)},
         elementwise_loss="L2DistLoss()",
         model_selection="best",
         maxsize=maxsize,
         parsimony=0.0001,
-        weight_optimize=0.001,
-        turbo=True,
+        batching=True,
+        batch_size=500,
+        weight_optimize=0.01,
+        turbo=False,
         complexity_of_operators=DEF_OPERATOR_COMPLEXITIES,
         maxdepth=maxdepth,
         random_state=0,
-        deterministic=True,
-        parallelism="serial",
+        deterministic=False,
+        parallelism="multithreading",
         extra_sympy_mappings={},
         variable_names=variable_names,
     )
@@ -318,11 +321,13 @@ def count_operator_stats(equations: list[str]) -> tuple[int, int]:
                            + DEF_OPERATOR_COMPLEXITIES["/"] * len(div_args))
         elif node.is_Pow:
             if node.exp != _Int(-1):
-                # No ^ operator: x**n expressed as (n-1) multiplications
                 if node.exp.is_Integer and int(node.exp) >= 2:
                     n = int(node.exp)
                     op_count += (n - 1)
                     complexity += (n - 1) * DEF_OPERATOR_COMPLEXITIES["*"]
+                elif not node.exp.is_Integer:
+                    op_count += 1
+                    complexity += DEF_OPERATOR_COMPLEXITIES["^"]
         elif node.func is sin:
             op_count += 1
             complexity += DEF_OPERATOR_COMPLEXITIES["sin"]
@@ -372,23 +377,11 @@ def symmetry_informed_symbolic_regression_for_file(path: str, out_dir: str, nite
 
     time_since_explosion = time_values - explosion_time
     plot_start, plot_end, left_margin, right_margin = get_plot_window(base_name, time_since_explosion, flux_values)
-    if plot_start is not None:
-        t_exp = explosion_time + plot_start
-        plot_start_rel = 0.0
-        plot_end_rel = plot_end - plot_start
-        fit_start = plot_start_rel - left_margin
-        fit_end = plot_end_rel + right_margin
-        time_since_t_exp = time_since_explosion - plot_start
-        fit_mask = (time_since_t_exp >= fit_start) & (time_since_t_exp <= fit_end)
-    else:
-        x0_min, x0_max = float(np.nanmin(time_since_explosion)), float(np.nanmax(time_since_explosion))
-        t_exp = explosion_time + x0_min
-        plot_start_rel = 0.0
-        plot_end_rel = x0_max - x0_min
-        fit_start = plot_start_rel
-        fit_end = plot_end_rel
-        time_since_t_exp = time_since_explosion - x0_min
-        fit_mask = (time_since_t_exp >= fit_start) & (time_since_t_exp <= fit_end)
+    t_exp = explosion_time + plot_start
+    plot_start_rel = 0.0
+    plot_end_rel = plot_end - plot_start
+    time_since_t_exp = time_since_explosion - plot_start
+    fit_mask = (time_since_t_exp >= plot_start_rel - left_margin) & (time_since_t_exp <= plot_end_rel + right_margin)
 
     # 2020tld has a flux spike at t≈59107.876 TJD.
     # including it forces the regression into rapid oscillation to accommodate the outlier.
@@ -693,6 +686,21 @@ def main():
             print(f"  csv:  {result.get('csv')}")
             if 'plot' in result:
                 print(f"  plot: {result.get('plot')}")
+        all_summary = {
+            "total_files": len(results),
+            "n_components": {
+                r["file"]: r.get("n_components", 0)
+                for r in results if r and r.get("file")
+            },
+            "equations": {
+                r["file"]: r.get("equations", [])
+                for r in results if r and r.get("file")
+            },
+            "r2_by_order": {
+                r["file"]: r.get("r2_by_order", [])
+                for r in results if r and r.get("file")
+            },
+        }
         manifest = {
             "args": {
                 "data_dir": data_dir,
@@ -706,6 +714,7 @@ def main():
                 "equiv_a_max": equiv_a_max,
                 "equiv_seed": equiv_seed,
             },
+            "all_summary": all_summary,
             "summaries": results,
         }
         jsons_dir = os.path.join(out_dir, "json")

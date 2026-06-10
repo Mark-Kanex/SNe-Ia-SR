@@ -1,74 +1,80 @@
+Minimum occurrence threshold: 10
+
 
 === 2018auo_binned ===
-1. General Symbolic Form: a + b*x0 + c*sin(d + e*x0)
-  Occurrences = 15, Complexity = 21.00, R^2 = 0.99783, Score = 0.7135
+1. General Symbolic Form: a + b*x0**c + d*sin(e + f*x0)
+  Occurrences = 11, Complexity = 26.00, R^2 = 0.99789, Score = 0.1864
+  Exponent params:
+    c = [1.206, 1.203, 1.231, 1.381, 1.230, 1.319, 1.132, 1.219, 1.410, 1.425, 1.169]  n=11, avg=1.2659, stdev=0.0962
 2. General Symbolic Form: a + b*x0 + c*x0**2 + d*sin(e + f*x0)
-  Occurrences = 24, Complexity = 29.00, R^2 = 0.99786, Score = 0.0096
-3. General Symbolic Form: a + b*x0 + c*sin(d + e*x0) + f*x0*sin(g + h*x0)
-  Occurrences = 15, Complexity = 39.00, R^2 = 0.99767, Score = -1.1174
+  Occurrences = 12, Complexity = 29.00, R^2 = 0.99786, Score = -0.1111
 
 
 === 2018agk_binned ===
-1. General Symbolic Form: a + b*x0 + c*x0**2 + d*sin(e + f*x0)
-  Occurrences = 31, Complexity = 29.00, R^2 = 0.99989, Score = 1.3686
-2. General Symbolic Form: a + b*x0 + c*x0**2
-  Occurrences = 14, Complexity = 14.00, R^2 = 0.98839, Score = 0.6752
-3. General Symbolic Form: a + b*x0 + c*x0**2 + d*x0**3
-  Occurrences = 28, Complexity = 25.00, R^2 = 0.99864, Score = 0.6465
+1. General Symbolic Form: a + b*x0 + c*x0**2
+  Occurrences = 16, Complexity = 14.00, R^2 = 0.98839, Score = 0.6953
+2. General Symbolic Form: a + b*x0 + c*x0**2 + d*x0**3
+  Occurrences = 19, Complexity = 25.00, R^2 = 0.99864, Score = 0.5567
+3. General Symbolic Form: a + b*x0 + c*x0**2 + d*sin(e + f*x0)
+  Occurrences = 21, Complexity = 29.00, R^2 = 0.99024, Score = -0.6793
 
 
 === 2020tld_binned ===
 1. General Symbolic Form: a + b*x0 + c*x0**2
-  Occurrences = 86, Complexity = 14.00, R^2 = 0.99322, Score = 1.6288
+  Occurrences = 58, Complexity = 14.00, R^2 = 0.99503, Score = 1.4839
+2. General Symbolic Form: a + b*x0 + c*x0**2 + d/(e + x0)
+  Occurrences = 14, Complexity = 22.00, R^2 = 0.99522, Score = 0.2609
 
 
 === 2018fub_binned ===
 1. General Symbolic Form: a + b*x0 + c*sin(d + e*x0)
-  Occurrences = 52, Complexity = 21.00, R^2 = 0.99630, Score = 0.8518
+  Occurrences = 53, Complexity = 21.00, R^2 = 0.99630, Score = 0.8621
 2. General Symbolic Form: a + b*x0 + c*sin(d + e*x0) + f*sin(g*x0)
-  Occurrences = 10, Complexity = 34.00, R^2 = 0.99658, Score = -0.8340
+  Occurrences = 14, Complexity = 34.00, R^2 = 0.99640, Score = -0.8163
 3. General Symbolic Form: a + b*x0 + c*sin(d + e*x0) + f*sin(g + h*x0)
-  Occurrences = 10, Complexity = 36.00, R^2 = 0.99655, Score = -1.0378
+  Occurrences = 13, Complexity = 36.00, R^2 = 0.99655, Score = -1.0079
 
 
 === 2018nt_binned ===
-1. General Symbolic Form: a + b*x0 + c*sin(d + e*x0)
-  Occurrences = 82, Complexity = 21.00, R^2 = 0.96521, Score = 0.1785
+1. General Symbolic Form: a + b*x0
+  Occurrences = 35, Complexity = 6.00, R^2 = 0.96079, Score = 1.1566
+2. General Symbolic Form: a + b*x0 + c*sin(d + e*x0)
+  Occurrences = 48, Complexity = 21.00, R^2 = 0.98856, Score = 0.3215
 
 
 === 2023bee_binned ===
 1. General Symbolic Form: a + b*x0 + c*x0**2 + d*sin(e + x0)
-  Occurrences = 22, Complexity = 26.00, R^2 = 0.99931, Score = 0.7812
+  Occurrences = 29, Complexity = 26.00, R^2 = 0.99931, Score = 0.8491
+2. General Symbolic Form: a + b*x0 + c*sin(d + x0) + e*exp(-x0)
+  Occurrences = 10, Complexity = 31.00, R^2 = 0.99951, Score = 0.3100
 
 
 === 2018alh_binned ===
-1. General Symbolic Form: a + b*x0 + c*x0**2
-  Occurrences = 12, Complexity = 14.00, R^2 = 0.99257, Score = 0.8490
+1. General Symbolic Form: a + b*x0 + c*x0**2 + d*x0**3
+  Occurrences = 10, Complexity = 25.00, R^2 = 0.99868, Score = 0.4798
 2. General Symbolic Form: a + b*x0 + c*x0**2 + d*sin(e + f*x0)
-  Occurrences = 52, Complexity = 29.00, R^2 = 0.99390, Score = -0.1653
+  Occurrences = 41, Complexity = 29.00, R^2 = 0.99390, Score = -0.2756
 
 
 === 2018adf_binned ===
 1. General Symbolic Form: a + b*x0 + c*x0**2
-  Occurrences = 11, Complexity = 14.00, R^2 = 0.96467, Score = 0.1619
+  Occurrences = 18, Complexity = 14.00, R^2 = 0.96467, Score = 0.2318
 2. General Symbolic Form: a + b*x0 + c*x0**2 + d*sin(e + f*x0)
-  Occurrences = 47, Complexity = 29.00, R^2 = 0.98320, Score = -0.6553
-3. General Symbolic Form: a + b*x0 + c*x0**2 + d*sin(e*x0)
-  Occurrences = 11, Complexity = 27.00, R^2 = 0.97032, Score = -1.0625
+  Occurrences = 22, Complexity = 29.00, R^2 = 0.98320, Score = -0.9054
 
 
 === 2023inb_binned ===
 1. General Symbolic Form: a + b*x0 + c*sin(d + e*x0)
-  Occurrences = 29, Complexity = 21.00, R^2 = 0.99851, Score = 1.0168
+  Occurrences = 27, Complexity = 21.00, R^2 = 0.99851, Score = 0.9966
 2. General Symbolic Form: a + b*x0 + c*sin(d + e*x0) + f*sin(g*x0)
-  Occurrences = 14, Complexity = 34.00, R^2 = 0.99861, Score = -0.4030
+  Occurrences = 14, Complexity = 34.00, R^2 = 0.99848, Score = -0.4412
 3. General Symbolic Form: a + b*x0 + c*sin(d + e*x0) + f*sin(g + h*x0)
-  Occurrences = 15, Complexity = 36.00, R^2 = 0.99874, Score = -0.5504
+  Occurrences = 13, Complexity = 36.00, R^2 = 0.99874, Score = -0.5708
 
 
 === 2018oh_binned ===
-1. General Symbolic Form: a + b*x0 + c*x0**2 + d*x0**3
-  Occurrences = 46, Complexity = 25.00, R^2 = 0.99955, Score = 1.3068
-2. General Symbolic Form: a + b*x0 + c*sin(d + e*x0)
-  Occurrences = 26, Complexity = 21.00, R^2 = 0.98291, Score = -0.0727
+1. General Symbolic Form: a + b*x0 + c*sin(d + e*x0)
+  Occurrences = 17, Complexity = 21.00, R^2 = 0.99994, Score = 2.2685
+2. General Symbolic Form: a + b*x0 + c*x0**2 + d*x0**3
+  Occurrences = 42, Complexity = 25.00, R^2 = 0.99955, Score = 1.2683
 

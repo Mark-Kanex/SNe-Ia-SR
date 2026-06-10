@@ -11,7 +11,8 @@ import shutil
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit, least_squares
-from sympy import sympify, Symbol, Integer, expand, sin, cos, exp, lambdify
+import re
+from sympy import sympify, Symbol, Integer, expand, sin, cos, exp, lambdify, Poly, preorder_traversal
 from sympy.core import numbers
 from sympy.printing.str import sstr
 import matplotlib
@@ -39,7 +40,7 @@ RSR_SCRIPT_PATH = os.path.abspath(os.path.join(
     'Symmetry_Informed_Residual_Symbolic_Regression.py',
 ))
 
-OPERATOR_COMPLEXITY = {"+": 1, "-": 1, "*": 2, "/": 3, "sin": 5, "exp": 5}
+OPERATOR_COMPLEXITY = {"+": 1, "-": 1, "*": 2, "/": 3, "^": 4, "sin": 5, "exp": 5}
 
 WEIGHT_R2 = 1.0
 WEIGHT_OCCURRENCE = 1.0
@@ -157,8 +158,6 @@ def get_plot_window(base_name: str, time_since_explosion: np.ndarray, flux_value
     return 0.0, float(np.nanmax(time_since_explosion)), 1.0, 1.0
 
 
-
-
 def generalized_form_complexity(expr) -> float:
     if expr is None:
         return 0.0
@@ -216,34 +215,18 @@ def load_lightcurve_window(base_name: str, data_dir: str) -> dict | None:
         return None
     explosion_time = find_explosion_epoch(time_values, flux_values, flux_errors)
     time_since_explosion = time_values - explosion_time
-    plot_start, plot_end, left_margin, right_margin = get_plot_window(base_name, time_since_explosion, flux_values)
-    if plot_start is not None:
-        plot_start_rel = 0.0
-        plot_end_rel = plot_end - plot_start
-        fit_start = plot_start_rel - left_margin
-        fit_end = plot_end_rel + right_margin
-        x0 = time_since_explosion - plot_start
-        plot_mask = (x0 >= plot_start_rel) & (x0 <= plot_end_rel)
-        fit_mask = (x0 >= fit_start) & (x0 <= fit_end)
-    else:
-        x0_min = float(np.nanmin(time_since_explosion))
-        x0_max = float(np.nanmax(time_since_explosion))
-        plot_start_rel = 0.0
-        plot_end_rel = x0_max - x0_min
-        x0 = time_since_explosion - x0_min
-        plot_mask = (x0 >= plot_start_rel) & (x0 <= plot_end_rel)
-        fit_mask = plot_mask.copy()
+    plot_start, plot_end, _, _ = get_plot_window(base_name, time_since_explosion, flux_values)
+    x0 = time_since_explosion - plot_start
+    plot_end_rel = plot_end - plot_start
+    plot_mask = (x0 >= 0.0) & (x0 <= plot_end_rel)
     # 2020tld has a flux spike at t≈59107.876 TJD;
     # including it forces the regression into rapid oscillation to accommodate the outlier.
     # This point is therefore excluded for regression purposes.
     if base_name.replace("_binned", "").lower() == "2020tld":
-        spike_mask = np.abs(time_values - 59107.8756786985) > 0.1
-        fit_mask = fit_mask & spike_mask
-        plot_mask = plot_mask & spike_mask
+        plot_mask = plot_mask & (np.abs(time_values - 59107.8756786985) > 0.1)
     return {
         "x0": x0,
         "flux": flux_values,
-        "fit_mask": fit_mask,
         "plot_mask": plot_mask,
     }
 
@@ -364,6 +347,26 @@ def generalize_expression(expression_str: str, variable_name: str | None = None)
     except Exception:
         pass
     try:
+        parameter_symbols = [s for s in expr.free_symbols if s not in data_variables]
+        parameter_set = set(parameter_symbols)
+        merge_cache: Dict = {}
+        def merge_adjacent_params(e):
+            if e.is_Add or e.is_Mul:
+                param_args = [a for a in e.args if getattr(a, 'free_symbols', set()).issubset(parameter_set)]
+                data_args_raw = [a for a in e.args if not getattr(a, 'free_symbols', set()).issubset(parameter_set)]
+                if len(param_args) > 1:
+                    data_args = [merge_adjacent_params(a) for a in data_args_raw]
+                    key = ('a' if e.is_Add else 'm', tuple(sorted(str(a) for a in param_args)))
+                    if key not in merge_cache:
+                        merge_cache[key] = Symbol(f'r{len(merge_cache)}')
+                    return e.func(merge_cache[key], *data_args)
+            if e.args:
+                return e.func(*[merge_adjacent_params(a) for a in e.args])
+            return e
+        expr = merge_adjacent_params(expr)
+    except Exception:
+        pass
+    try:
         if Symbol("x0") in getattr(expr, "free_symbols", set()):
             _dv = {Symbol("x0")}
         else:
@@ -372,10 +375,12 @@ def generalize_expression(expression_str: str, variable_name: str | None = None)
         _pow_map: Dict = {}
         _pow_counter = [2]
         def _collect_x0_pows(e):
-            if e.is_Pow and e.base == _x0_sym and getattr(e.exp, 'free_symbols', set()):
-                if e not in _pow_map:
-                    _pow_map[e] = _x0_sym ** _pow_counter[0]
-                    _pow_counter[0] += 1
+            if e.is_Pow and e.base == _x0_sym:
+                exp_free = getattr(e.exp, 'free_symbols', set())
+                if exp_free & _dv:
+                    if e not in _pow_map:
+                        _pow_map[e] = _x0_sym ** _pow_counter[0]
+                        _pow_counter[0] += 1
             for a in getattr(e, 'args', []):
                 _collect_x0_pows(a)
         _collect_x0_pows(expr)
@@ -394,7 +399,6 @@ def generalize_expression(expression_str: str, variable_name: str | None = None)
                     if v in getattr(arg, 'free_symbols', set()):
                         free = getattr(arg, 'free_symbols', set()) - {v}
                         if free.issubset(parameter_set):
-                            from sympy import Poly
                             try:
                                 P = Poly(arg, v)
                                 if P.degree() == 1:
@@ -461,9 +465,6 @@ def generalize_expression(expression_str: str, variable_name: str | None = None)
             if s == v:
                 return 1
             if s.is_Pow and s.base == v:
-                ex = s.exp
-                if ex == 1:
-                    return 1
                 return 2
             if s.func is sin and v in getattr(s.args[0], 'free_symbols', set()):
                 return 3
@@ -495,11 +496,10 @@ def generalize_expression(expression_str: str, variable_name: str | None = None)
     except Exception:
         pass
     try:
-        import re as _re
         parameter_symbols_all = [s for s in expr.free_symbols if s not in data_variables]
         expr_str_repr = sstr(expr)
         def _param_pos(sym, s):
-            m = _re.search(r'(?<![A-Za-z0-9_])' + _re.escape(str(sym)) + r'(?![A-Za-z0-9_])', s)
+            m = re.search(r'(?<![A-Za-z0-9_])' + re.escape(str(sym)) + r'(?![A-Za-z0-9_])', s)
             return m.start() if m else len(s)
         parameter_symbols_all = sorted(parameter_symbols_all, key=lambda s: _param_pos(str(s), expr_str_repr))
         alphabet = 'abcdefghijklmnopqrstuvwxyz'
@@ -517,9 +517,39 @@ def generalize_expression(expression_str: str, variable_name: str | None = None)
             return str(expr)
 
 
+def extract_x0_exponents(combined_eq_str: str) -> List[float]:
+    try:
+        expr = sympify(combined_eq_str)
+        x0 = Symbol('x0')
+        expr = expr.subs([(Symbol('t'), x0), (Symbol('t_0'), 0), (Symbol('A'), 1)])
+        exps = []
+        for node in preorder_traversal(expr):
+            if node.is_Pow and node.base == x0:
+                e = node.exp
+                if e.is_Number and not e.is_Integer:
+                    exps.append(float(e))
+        return exps
+    except Exception:
+        return []
+
+
+def get_exponent_params(generalized_form: str) -> List[str]:
+    try:
+        expr = sympify(generalized_form)
+        x0 = Symbol('x0')
+        params = []
+        for node in preorder_traversal(expr):
+            if node.is_Pow and node.base == x0 and not node.exp.is_Number:
+                params.append(str(node.exp))
+        return params
+    except Exception:
+        return []
+
+
 def collect_general_forms(manifest_paths: List[str]):
     per_lightcurve: Dict[str, Counter] = defaultdict(Counter)
     form_stats = {}
+    exponent_tracker: Dict = {}
     for manifest_path in manifest_paths:
         with open(manifest_path, 'r') as f:
             manifest = json.load(f)
@@ -530,15 +560,10 @@ def collect_general_forms(manifest_paths: List[str]):
                 equations = equations[:2]
             if not base or not equations:
                 continue
-            summed = None
-            if isinstance(equations, list) and len(equations) > 0:
-                try:
-                    exprs = [str(e).replace('^', '**') for e in equations]
-                    summed = '+'.join(exprs)
-                except Exception:
-                    summed = '+'.join([str(e) for e in equations])
-            if not summed:
-                continue
+            try:
+                summed = '+'.join(str(e).replace('^', '**') for e in equations)
+            except Exception:
+                summed = '+'.join(str(e) for e in equations)
             generalized = generalize_expression(summed)
             try:
                 expr = sympify(generalized)
@@ -551,7 +576,17 @@ def collect_general_forms(manifest_paths: List[str]):
                 form_stats[key] = {"sum_complexity": 0.0, "sum_count": 0}
             form_stats[key]["sum_complexity"] += float(complexity) if complexity is not None else 0.0
             form_stats[key]["sum_count"] += 1
-    return per_lightcurve, form_stats
+            exp_params = get_exponent_params(generalized)
+            if exp_params:
+                exp_vals = extract_x0_exponents(summed)
+                paired = list(zip(exp_params, exp_vals))
+                if key not in exponent_tracker:
+                    exponent_tracker[key] = {}
+                for param, val in paired:
+                    if param not in exponent_tracker[key]:
+                        exponent_tracker[key][param] = []
+                    exponent_tracker[key][param].append(val)
+    return per_lightcurve, form_stats, exponent_tracker
 
 
 def save_bootstrap_plots(manifest_path: str, lightcurve_root: str, run_index: int) -> None:
@@ -612,26 +647,18 @@ def save_bootstrap_plots(manifest_path: str, lightcurve_root: str, run_index: in
         plt.close(fig)
 
 
-def clean_previous_outputs(data_dir: str, output_root: str, validation_root: str) -> None:
+def clean_previous_outputs(output_root: str, validation_root: str) -> None:
     if os.path.isdir(output_root):
         shutil.rmtree(output_root)
     os.makedirs(output_root, exist_ok=True)
-    for summary_name in ("summary_filtered.txt",):
-        summary_path = os.path.join(validation_root, summary_name)
-        try:
-            os.remove(summary_path)
-        except FileNotFoundError:
-            pass
+    lightcurve_root = os.path.join(validation_root, 'lightcurves')
+    if os.path.isdir(lightcurve_root):
+        shutil.rmtree(lightcurve_root)
+    summary_path = os.path.join(validation_root, "summary_filtered.txt")
     try:
-        names = [f for f in os.listdir(data_dir) if f.endswith('_binned.csv')]
+        os.remove(summary_path)
     except FileNotFoundError:
-        names = []
-    for f in names:
-        base = os.path.splitext(f)[0]
-        d = os.path.join(validation_root, base)
-        if os.path.isdir(d):
-            shutil.rmtree(d)
-        os.makedirs(d, exist_ok=True)
+        pass
 
 
 def relocate_lightcurve_dirs(source_root: str, dest_root: str, data_dir: str) -> None:
@@ -700,13 +727,13 @@ def parametric_regression_r2(general_form: str, t_data: np.ndarray, flux_data: n
     amp_guess = float(np.nanstd(y_fit)) or 1.0
     p0_smart = []
     for s in param_syms:
-        if s.name in ('e', 'f', 'h', 'k', 'n'):
+        if s.name in ('d', 'e', 'f', 'g', 'h'):
             p0_smart.append(freq_guess)
-        elif s.name in ('d', 'g', 'j', 'm'):
+        elif s.name in ('c',):
             p0_smart.append(amp_guess)
         else:
             p0_smart.append(1.0)
-    p0_options = [[1.0] * n_params, p0_smart, [freq_guess] * n_params]
+    p0_options = [[1.0] * n_params, p0_smart, [freq_guess] * n_params, [amp_guess] * n_params]
     best_r2 = float('nan')
     for p0 in p0_options:
         try:
@@ -730,6 +757,7 @@ def parametric_regression_r2(general_form: str, t_data: np.ndarray, flux_data: n
     return best_r2
 
 
+
 def write_filtered_summary_text(
     tally: Dict[str, Counter],
     form_stats: dict,
@@ -737,6 +765,7 @@ def write_filtered_summary_text(
     summary_root: str,
     min_occ: int,
     r2_map: dict,
+    exponent_tracker: Dict,
     *,
     verbose: bool = True,
 ) -> str:
@@ -764,12 +793,18 @@ def write_filtered_summary_text(
                 r2_str = "NA" if (r2 is None or not math.isfinite(r2)) else f"{r2:.5f}"
                 f.write(f"{rank}. General Symbolic Form: {form}\n")
                 f.write(f"  Occurrences = {cnt}, Complexity = {avg_complexity:.2f}, R^2 = {r2_str}, Score = {score:.4f}\n")
+                param_map = exponent_tracker.get((base, form), {})
+                if param_map:
+                    f.write(f"  Exponent params:\n")
+                    for param, vals in sorted(param_map.items()):
+                        avg_exp = float(np.mean(vals))
+                        std_exp = float(np.std(vals))
+                        vals_str = ", ".join(f"{v:.3f}" for v in vals)
+                        f.write(f"    {param} = [{vals_str}]  n={len(vals)}, avg={avg_exp:.4f}, stdev={std_exp:.4f}\n")
             f.write("\n")
     if verbose:
         print(f"Saved filtered summary (TXT): {out_path}")
     return out_path
-
-
 
 
 
@@ -793,7 +828,7 @@ def main():
     args.data_dir = os.path.abspath(os.path.expanduser(args.data_dir))
 
     relocate_lightcurve_dirs(VALIDATION_ROOT, LIGHTCURVE_ROOT, args.data_dir)
-    clean_previous_outputs(args.data_dir, args.out_root, VALIDATION_ROOT)
+    clean_previous_outputs(args.out_root, VALIDATION_ROOT)
 
     os.makedirs(args.out_root, exist_ok=True)
     try:
@@ -807,6 +842,12 @@ def main():
     print(f"Expected PySR fits (up to 2 per curve): {expected_fits}")
 
     manifests: List[str] = []
+    tally: Dict[str, Counter] = defaultdict(Counter)
+    form_stats: dict = {}
+    r2_map: dict = {}
+    lc_cache: dict = {}
+    exponent_tracker: Dict = {}
+
     print(f"Processing directory: {args.data_dir}")
     for i in range(args.runs):
         m = run_rsr_once(
@@ -821,32 +862,47 @@ def main():
         if not args.no_bootstrap_plots:
             save_bootstrap_plots(m, LIGHTCURVE_ROOT, i)
         manifests.append(m)
+
+        new_tally, new_form_stats, new_exp = collect_general_forms([m])
+        for base, counter in new_tally.items():
+            tally[base].update(counter)
+        for key, stats in new_form_stats.items():
+            if key not in form_stats:
+                form_stats[key] = {"sum_complexity": 0.0, "sum_count": 0}
+            form_stats[key]["sum_complexity"] += stats["sum_complexity"]
+            form_stats[key]["sum_count"] += stats["sum_count"]
+        for key, param_map in new_exp.items():
+            if key not in exponent_tracker:
+                exponent_tracker[key] = {}
+            for param, vals in param_map.items():
+                if param not in exponent_tracker[key]:
+                    exponent_tracker[key][param] = []
+                exponent_tracker[key][param].extend(vals)
+
+        for base, counter in new_tally.items():
+            if base not in lc_cache:
+                lc_cache[base] = load_lightcurve_window(base, args.data_dir)
+            lc = lc_cache[base]
+            for form in counter:
+                key = (base, form)
+                if key not in r2_map:
+                    if lc is None:
+                        r2_map[key] = float('nan')
+                    else:
+                        plot_mask = np.asarray(lc['plot_mask'], dtype=bool)
+                        t_plot = np.asarray(lc['x0'], dtype=float)[plot_mask]
+                        f_plot = np.asarray(lc['flux'], dtype=float)[plot_mask]
+                        r2_map[key] = parametric_regression_r2(form, t_plot, f_plot)
+
+        print(f"Run {i + 1}/{args.runs} complete")
+
         if args.clean_pycache_every > 0 and ((i + 1) % args.clean_pycache_every == 0):
             clean_pycache(VALIDATION_ROOT)
 
     if not manifests:
         return
-    tally, form_stats = collect_general_forms(manifests)
-    min_occ = args.min_occurrence if args.min_occurrence is not None else int(math.sqrt(max(args.runs, 1)))
 
-    print("Refitting discovered forms to original light curves...")
-    r2_map: dict = {}
-    lc_cache: dict = {}
-    for base, counter in tally.items():
-        if base not in lc_cache:
-            lc_cache[base] = load_lightcurve_window(base, args.data_dir)
-        lc = lc_cache[base]
-        for form, cnt in counter.most_common():
-            if cnt < min_occ:
-                continue
-            key = (base, form)
-            if lc is None:
-                r2_map[key] = float('nan')
-                continue
-            plot_mask = np.asarray(lc['plot_mask'], dtype=bool)
-            t_plot = np.asarray(lc['x0'], dtype=float)[plot_mask]
-            f_plot = np.asarray(lc['flux'], dtype=float)[plot_mask]
-            r2_map[key] = parametric_regression_r2(form, t_plot, f_plot)
+    min_occ = args.min_occurrence if args.min_occurrence is not None else int(math.sqrt(max(args.runs, 1)))
 
     for base, counter in tally.items():
         print(f"\n=== {base} ===")
@@ -876,6 +932,7 @@ def main():
         VALIDATION_ROOT,
         min_occ,
         r2_map,
+        exponent_tracker,
         verbose=True,
     )
 

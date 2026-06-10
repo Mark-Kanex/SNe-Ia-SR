@@ -71,17 +71,18 @@ def fit_parametric(x, y, yerr):
 
     xf, yf = x[mask], y[mask]
     sf = sigma[mask] if sigma is not None else None
-    if xf.size < 6:
+    if xf.size < 5:
         return None
 
-    a0, b0, c0 = np.polyfit(xf, yf, 2)
-    d0   = float(np.nanstd(yf - (a0*xf**2 + b0*xf + c0))) or 0.0
+    poly = np.polyfit(xf, yf, 2)
+    a0, b0, c0 = float(poly[0]), float(poly[1]), float(poly[2])
+    res0 = float(np.nanstd(yf - np.polyval(poly, xf))) or 0.0
     span = float(np.nanmax(xf) - np.nanmin(xf)) if xf.size else 0.0
     e0   = 2.0 * np.pi / span if span > 0 else 1.0
 
     p0_options = [
-        [a0, b0, c0, d0, e0, 0.0],
-        [a0, b0, c0, d0 * 0.5, e0 * 2, 0.0],
+        [a0, b0, c0, res0, e0, 0.0],
+        [a0, b0, c0, res0 * 0.5, e0 * 2, 0.0],
         [a0, b0, c0, 0.0, e0, 0.0],
     ]
 
