@@ -1,6 +1,3 @@
-Minimum occurrence threshold: 10
-
-
 === 2018auo_binned ===
 1. General Symbolic Form: a + b*x0**c + d*sin(e + f*x0)
   Occurrences = 11, Complexity = 26.00, R^2 = 0.99789, Score = 0.1864
