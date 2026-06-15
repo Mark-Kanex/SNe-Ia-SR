@@ -176,18 +176,17 @@ for csv_path in sorted(DATA_DIR.glob("*_binned.csv")):
     t_max         = plot_end - plot_start
 
     plot_mask = (time_since >= 0.0) & (time_since <= t_max)
-    fit_mask  = (time_since >= -left_margin) & (time_since <= t_max + right_margin)
+    reg_mask  = plot_mask.copy()
 
     # 2020tld has a flux spike at t≈59107.876 TJD.
     # including it forces the regression into rapid oscillation to accommodate the outlier.
-    # This point is therefore excluded for regression purposes.
-
+    # Excluded from regression but kept in the plot.
     if sn_id == "2020tld":
-        fit_mask = fit_mask & (np.abs(times - 59107.8756786985) > 0.1)
+        reg_mask = reg_mask & (np.abs(times - 59107.8756786985) > 0.1)
 
     print(f"{sn_id}: n_plot={plot_mask.sum()}, t_max={t_max:.2f}")
 
-    params = fit_parametric(time_since[fit_mask], fluxes[fit_mask], flux_errs[fit_mask])
+    params = fit_parametric(time_since[reg_mask], fluxes[reg_mask], flux_errs[reg_mask])
     if params is None:
         print(f"  fit failed")
         continue
